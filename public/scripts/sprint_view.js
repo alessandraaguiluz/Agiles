@@ -44,6 +44,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 </button>
             `;
 
+            // Add event listener for "Añadir Miembro" button to redirect
+            storyElement.querySelector(".add-member-btn").addEventListener("click", () => {
+                window.location.href = "H2_asignar_tareas.html"; // Redirige al HTML de asignar miembros
+            });
+
             // Add event listener for edit button
             storyElement.querySelector(".edit-story-btn").addEventListener("click", () => {
                 openEditModal(story);
