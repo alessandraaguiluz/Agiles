@@ -8,11 +8,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '/login';
     }
 
-    projectId = window.location.pathname.split('/').pop();
-
+    // Aquí ya no necesitamos el projectId para redirigir
+    const addSprintBtn = document.getElementById('addSprintBtn');
+    const sprintsBtn = document.getElementById('sprintsBtn');
+    const reportsBtn = document.getElementById('reportsBtn');
+    const kanbanBtn = document.getElementById('kanbanBtn');
+    const miembrosBtn = document.getElementById('miembrosBtn');
+    const plazBtn = document.getElementById('plazBtn');
+    const backBtn = document.getElementById('backBtn');
     const projectTitle = document.getElementById('projectTitle');
     const projectDescription = document.getElementById('projectDescription');
-
+    const projectMenu = document.getElementById('projectMenu');
+    const miembrosSection = document.getElementById('miembrosSection');
+    const miembrosList = document.getElementById('miembrosList');
+    const emailInvitar = document.getElementById('emailInvitar');
+    const invitarBtn = document.getElementById('invitarBtn');
+    const volverMenuBtn = document.getElementById('volverMenuBtn');
+    
     // Obtener detalles del proyecto
     async function loadProjectDetails() {
         const response = await fetch(`/api/projects/${projectId}`, {
@@ -36,84 +48,55 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadProjectDetails();
 
     // Añadir evento al botón "Regresar"
-    const backBtn = document.getElementById('backBtn');
     backBtn.addEventListener('click', (e) => {
         e.preventDefault();
         window.history.back();
     });
 
-    // Añadir funcionalidad a los botones del menú
-    const addSprintBtn = document.getElementById('addSprintBtn');
-    const sprintsBtn = document.getElementById('sprintsBtn');
-    const reportsBtn = document.getElementById('reportsBtn');
-    const kanbanBtn = document.getElementById('kanbanBtn');
-    const plazBtn = document.getElementById('plazBtn');
-
-    // Redirección para el botón de Añadir Sprint
+    // Redirigir a la página de añadir sprint
     addSprintBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        // Redirigir a la página de añadir un sprint
-        window.location.href = `public\H2_asignar_tareas.html?projectId=${projectId}`;
+        alert('PENDIENTE: añadir sprint no implementada todavía');
     });
 
-    // Redirección para el botón de Sprints
+    // Redirigir a la página de sprints
     sprintsBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        // Lógica para navegar a la página de sprints (puedes cambiar la URL según corresponda)
-        alert('PENDIENTE: ver sprints no implementada todavía');
+        window.location.href = 'H3_sprint_view.html';
     });
 
-    // Redirección para el botón de Reportes
+    // Redirigir a la página de reportes
     reportsBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        // Navegar a la página de reportes
-        alert('PENDIENTE: ver reportes no implementada todavía');
+        window.location.href = 'H5_reporte.html';
     });
 
-    // Redirección para el botón de Kanban
+    // Redirigir a la página de Kanban
     kanbanBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        // Navegar a la página de Kanban con el ID del proyecto
-        window.location.href = `public\H4_kanban.html?projectId=${projectId}`;
+        window.location.href = 'H4_kanban.html';
     });
 
-    // Redirección para el botón de Plazo (si tiene alguna funcionalidad)
-    plazBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        // Redirigir a la página de establecer el plazo
-        alert('PENDIENTE: establecer plazo no implementada todavía');
-    });
-
-    // Obtener elementos del DOM para la sección de miembros
-    const miembrosSection = document.getElementById('miembrosSection');
-    const projectMenu = document.getElementById('projectMenu');
-    const miembrosList = document.getElementById('miembrosList');
-    const emailInvitar = document.getElementById('emailInvitar');
-    const invitarBtn = document.getElementById('invitarBtn');
-    const volverMenuBtn = document.getElementById('volverMenuBtn');
-
+    // Redirigir a la sección de miembros
     miembrosBtn.addEventListener('click', (e) => {
         e.preventDefault();
         projectMenu.style.display = 'none';
         miembrosSection.style.display = 'block';
         cargarMiembros();
 
-        // Remover la clase 'active' de todos los enlaces del menú
         document.querySelectorAll('.project-menu ul li a').forEach(link => {
             link.classList.remove('active');
         });
 
-        // Agregar la clase 'active' al enlace de miembros
         miembrosBtn.classList.add('active');
     });
 
-    // Listener para el botón "Regresar al Menú"
+    // Redirigir al menú de proyectos
     volverMenuBtn.addEventListener('click', (e) => {
         e.preventDefault();
         miembrosSection.style.display = 'none';
         projectMenu.style.display = 'block';
 
-        // Remover la clase 'active' del enlace de miembros
         miembrosBtn.classList.remove('active');
     });
 
@@ -236,7 +219,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Modal functionality
+    // Funcionalidad del modal
     const modal = document.getElementById('deadlineModal');
     const span = document.getElementsByClassName('close')[0];
     const saveDeadlineBtn = document.getElementById('saveDeadlineBtn');
@@ -276,15 +259,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             if (!response.ok) {
-                const result = await response.json();
-                alert(result.mensaje || 'Error al guardar la fecha de vencimiento');
-            } else {
-                alert('Fecha de vencimiento guardada');
-                modal.style.display = 'none';
+                alert('Error al guardar la fecha límite');
+                return;
             }
+
+            alert('Fecha límite guardada con éxito');
+            modal.style.display = 'none';
         } catch (error) {
-            console.error('Error:', error);
-            alert('Ocurrió un error al guardar la fecha.');
+            console.error('Error al guardar la fecha límite:', error);
+            alert('Error al guardar la fecha límite');
         }
     });
 });
