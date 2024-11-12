@@ -64,17 +64,6 @@ function loadProjects() {
             <p>No tienes proyectos actualmente.</p>
         `;
         projectGrid.appendChild(noProjectsMessage);
-
-        document.getElementById('createProjectBtn').addEventListener('click', () => {
-            modal.style.display = 'flex';
-            projectForm.reset();
-            currentProjectId = null;
-            document.getElementById('modal-title').textContent = 'Crear Proyecto';
-        });
-
-        document.getElementById('joinProjectBtn').addEventListener('click', () => {
-            joinProjectModal.style.display = 'flex';
-        });
     } else {
         projects.forEach((project, index) => {
             const projectCard = document.createElement('div');
@@ -85,18 +74,14 @@ function loadProjects() {
                 <p>${project.description}</p>
                 <p><strong>Estado:</strong> ${project.status}</p>
                 <button class="delete-btn" data-index="${index}">Eliminar</button>
+                <button class="edit-btn" data-index="${index}">Editar</button>
+                <button class="more-btn" onclick="window.location.href='C:/Users/Lenovo/Desktop/UNIVERSITY/Agiles/public/H1_project_view.html'">Más</button>
             `;
             projectCard.querySelector('.delete-btn').addEventListener('click', (event) => {
                 deleteProject(event.target.dataset.index);
             });
-            projectCard.addEventListener('click', () => {
-                currentProjectId = index;
-                projectNameInput.value = project.name;
-                projectDescriptionInput.value = project.description;
-                projectMembersInput.value = project.members.join(', ');
-                projectStatusSelect.value = project.status;
-                modal.style.display = 'flex';
-                document.getElementById('modal-title').textContent = 'Editar Proyecto';
+            projectCard.querySelector('.edit-btn').addEventListener('click', (event) => {
+                editProject(event.target.dataset.index);
             });
             projectGrid.appendChild(projectCard);
         });
@@ -109,6 +94,19 @@ function deleteProject(index) {
     projects.splice(index, 1); // Eliminar el proyecto
     localStorage.setItem('projects', JSON.stringify(projects)); // Guardar en localStorage
     loadProjects(); // Recargar proyectos
+}
+
+// Función para editar un proyecto
+function editProject(index) {
+    const projects = JSON.parse(localStorage.getItem('projects')) || [];
+    const project = projects[index];
+    currentProjectId = index;
+    projectNameInput.value = project.name;
+    projectDescriptionInput.value = project.description;
+    projectMembersInput.value = project.members.join(', ');
+    projectStatusSelect.value = project.status;
+    modal.style.display = 'flex';
+    document.getElementById('modal-title').textContent = 'Editar Proyecto';
 }
 
 // manejar envío del formulario de crear o editar proyecto

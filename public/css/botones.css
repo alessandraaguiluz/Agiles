@@ -1,0 +1,50 @@
+/* Estilo común para todos los botones */
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Botón con fondo predeterminado */
+button.default-btn {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+}
+
+button.default-btn:hover {
+    background-color: #45a049; /* Verde oscuro */
+}
+
+/* Botón de eliminación */
+button.delete-btn {
+    background-color: #f44336; /* Rojo */
+    color: white;
+}
+
+button.delete-btn:hover {
+    background-color: #e53935; /* Rojo oscuro */
+}
+
+/* Botón de edición */
+button.edit-btn {
+    background-color: #008CBA; /* Azul */
+    color: white;
+}
+
+button.edit-btn:hover {
+    background-color: #007bb5; /* Azul oscuro */
+}
+
+/* Botón de más información */
+button.more-btn {
+    background-color: #ff9800; /* Naranja */
+    color: white;
+}
+
+button.more-btn:hover {
+    background-color: #fb8c00; /* Naranja oscuro */
+}
