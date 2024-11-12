@@ -39,9 +39,9 @@ function isValidEmail(email) {
 
 // Función para validar los correos ingresados
 function validateEmails(emails) {
-    const emailList = emails.split(',').map(email => email.trim());  // Limpiar espacios y separar por coma
-    const invalidEmails = emailList.filter(email => !isValidEmail(email));  // Filtrar correos inválidos
-    const duplicateEmails = emailList.filter((email, index, self) => self.indexOf(email) !== index); // Filtrar correos duplicados
+    const emailList = emails.split(',').map(email => email.trim());
+    const invalidEmails = emailList.filter(email => !isValidEmail(email));
+    const duplicateEmails = emailList.filter((email, index, self) => self.indexOf(email) !== index);
 
     if (invalidEmails.length > 0) {
         return { valid: false, message: `Los siguientes correos son inválidos: ${invalidEmails.join(', ')}` };
@@ -60,21 +60,8 @@ function loadProjects() {
     if (projects.length === 0) {
         const noProjectsMessage = document.createElement('div');
         noProjectsMessage.classList.add('no-projects-message');
-        noProjectsMessage.innerHTML = `
-            <p>No tienes proyectos actualmente.</p>
-        `;
+        noProjectsMessage.innerHTML = `<p>No tienes proyectos actualmente.</p>`;
         projectGrid.appendChild(noProjectsMessage);
-
-        document.getElementById('createProjectBtn').addEventListener('click', () => {
-            modal.style.display = 'flex';
-            projectForm.reset();
-            currentProjectId = null;
-            document.getElementById('modal-title').textContent = 'Crear Proyecto';
-        });
-
-        document.getElementById('joinProjectBtn').addEventListener('click', () => {
-            joinProjectModal.style.display = 'flex';
-        });
     } else {
         projects.forEach((project, index) => {
             const projectCard = document.createElement('div');
@@ -106,13 +93,13 @@ function loadProjects() {
 // Función para eliminar un proyecto
 function deleteProject(index) {
     const projects = JSON.parse(localStorage.getItem('projects')) || [];
-    projects.splice(index, 1); // Eliminar el proyecto
-    localStorage.setItem('projects', JSON.stringify(projects)); // Guardar en localStorage
-    loadProjects(); // Recargar proyectos
+    projects.splice(index, 1);
+    localStorage.setItem('projects', JSON.stringify(projects));
+    loadProjects();
 }
 
 // manejar envío del formulario de crear o editar proyecto
-projectForm.addEventListener('submit', (event) => {
+projectForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const projectName = projectNameInput.value;
     const projectDescription = projectDescriptionInput.value;
@@ -122,8 +109,8 @@ projectForm.addEventListener('submit', (event) => {
     // Validar los correos
     const emailValidation = validateEmails(projectMembers);
     if (!emailValidation.valid) {
-        alert(emailValidation.message);  // Mostrar el mensaje de error
-        return;  // Detener el proceso si los correos no son válidos
+        alert(emailValidation.message);
+        return;
     }
 
     const newProject = {
@@ -133,19 +120,21 @@ projectForm.addEventListener('submit', (event) => {
         members: projectMembers.split(',').map(email => email.trim())
     };
 
-    const projects = JSON.parse(localStorage.getItem('projects')) || [];
+    const response = await fetch('/api/projects', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newProject)
+    });
 
-    if (currentProjectId === null) {
-        // Crear nuevo proyecto
-        projects.push(newProject);
+    if (response.ok) {
+        alert('Proyecto creado y correos de invitación enviados');
+        modal.style.display = 'none';
+        loadProjects();
     } else {
-        // Editar proyecto existente
-        projects[currentProjectId] = newProject;
+        alert('Error al crear el proyecto');
     }
-
-    localStorage.setItem('projects', JSON.stringify(projects));
-    modal.style.display = 'none';
-    loadProjects(); // Recargar proyectos
 });
 
 document.addEventListener('DOMContentLoaded', () => {
