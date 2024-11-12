@@ -196,3 +196,4 @@ async function respondInvitation(projectId, accept) {
         alert(resultado.mensaje || 'Error al responder a la invitacion');
     }
 }
+

@@ -1,36 +1,19 @@
-const loginForm = document.getElementById('loginForm');
-const mensajeDiv = document.getElementById('mensaje');
-
-loginForm.addEventListener('submit', async (e) => {
+document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
     const correo = document.getElementById('correo').value;
-    const pass = document.getElementById('contraseña').value;
+    const contraseña = document.getElementById('contraseña').value;
 
-    const datos = {
-        correo,
-        contraseña: pass
-    };
+    let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
 
-    try {
-        const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(datos)
-        });
+    // Verificar si las credenciales son correctas
+    const usuario = usuarios.find(user => user.correo === correo && user.contraseña === contraseña);
 
-        const resultado = await response.json();
-
-        if (response.ok) {
-            localStorage.setItem('token', resultado.token);
-            window.location.href = '/dashboard';
-        } else {
-            mensajeDiv.textContent = resultado.mensaje;
-            mensajeDiv.style.color = 'red';
-        }
-    } catch (error) {
-        console.error('Error:', error);
+    if (usuario) {
+        // Guardar token en localStorage
+        localStorage.setItem('token', 'token_12345');
+        window.location.href = 'dashboard.html';
+    } else {
+        document.getElementById('mensaje').textContent = 'Credenciales incorrectas.';
     }
 });
