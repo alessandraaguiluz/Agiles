@@ -6,6 +6,7 @@ const projectForm = document.getElementById('projectForm');
 const projectNameInput = document.getElementById('projectName');
 const projectDescriptionInput = document.getElementById('projectDescription');
 const projectMembersInput = document.getElementById('projectMembers');
+const projectStatusSelect = document.getElementById('projectStatus');
 
 const joinProjectModal = document.getElementById('joinProjectModal');
 const joinProjectForm = document.getElementById('joinProjectForm');
@@ -30,27 +31,37 @@ joinModalClose.addEventListener('click', () => {
     joinProjectModal.style.display = 'none';
 });
 
-const token = localStorage.getItem('token');
+// Función para validar si una cadena es un correo electrónico válido
+function isValidEmail(email) {
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return emailPattern.test(email);
+}
+
+// Función para validar los correos ingresados
+function validateEmails(emails) {
+    const emailList = emails.split(',').map(email => email.trim());  // Limpiar espacios y separar por coma
+    const invalidEmails = emailList.filter(email => !isValidEmail(email));  // Filtrar correos inválidos
+    const duplicateEmails = emailList.filter((email, index, self) => self.indexOf(email) !== index); // Filtrar correos duplicados
+
+    if (invalidEmails.length > 0) {
+        return { valid: false, message: `Los siguientes correos son inválidos: ${invalidEmails.join(', ')}` };
+    }
+    if (duplicateEmails.length > 0) {
+        return { valid: false, message: `Los siguientes correos están duplicados: ${duplicateEmails.join(', ')}` };
+    }
+    return { valid: true };
+}
 
 // cargar proyectos del usuario
-async function loadProjects() {
-    const response = await fetch('/api/projects', {
-        headers: {
-            'Authorization': token
-        }
-    });
-    const projects = await response.json();
-
+function loadProjects() {
+    const projects = JSON.parse(localStorage.getItem('projects')) || [];
     projectGrid.innerHTML = '';
 
     if (projects.length === 0) {
-        // mostrar opciones si no hay proyectos
         const noProjectsMessage = document.createElement('div');
         noProjectsMessage.classList.add('no-projects-message');
         noProjectsMessage.innerHTML = `
             <p>No tienes proyectos actualmente.</p>
-            <button id="createProjectBtn">Crear un nuevo proyecto</button>
-            <button id="joinProjectBtn">Unirse a un proyecto existente</button>
         `;
         projectGrid.appendChild(noProjectsMessage);
 
@@ -65,135 +76,78 @@ async function loadProjects() {
             joinProjectModal.style.display = 'flex';
         });
     } else {
-        // mostrar proyectos existentes
-        projects.forEach(project => {
+        projects.forEach((project, index) => {
             const projectCard = document.createElement('div');
             projectCard.classList.add('project-card');
             projectCard.innerHTML = `
                 <div class="project-icon"></div>
-                <h2>${project.nombre}</h2>
-                <p>${project.descripcion}</p>
+                <h2>${project.name}</h2>
+                <p>${project.description}</p>
+                <p><strong>Estado:</strong> ${project.status}</p>
+                <button class="delete-btn" data-index="${index}">Eliminar</button>
             `;
+            projectCard.querySelector('.delete-btn').addEventListener('click', (event) => {
+                deleteProject(event.target.dataset.index);
+            });
             projectCard.addEventListener('click', () => {
-                window.location.href = `/proyecto/${project._id}`;
+                currentProjectId = index;
+                projectNameInput.value = project.name;
+                projectDescriptionInput.value = project.description;
+                projectMembersInput.value = project.members.join(', ');
+                projectStatusSelect.value = project.status;
+                modal.style.display = 'flex';
+                document.getElementById('modal-title').textContent = 'Editar Proyecto';
             });
             projectGrid.appendChild(projectCard);
         });
     }
 }
 
-// manejar envío del formulario de crear proyecto
-projectForm.addEventListener('submit', async (event) => {
+// Función para eliminar un proyecto
+function deleteProject(index) {
+    const projects = JSON.parse(localStorage.getItem('projects')) || [];
+    projects.splice(index, 1); // Eliminar el proyecto
+    localStorage.setItem('projects', JSON.stringify(projects)); // Guardar en localStorage
+    loadProjects(); // Recargar proyectos
+}
+
+// manejar envío del formulario de crear o editar proyecto
+projectForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const projectName = projectNameInput.value;
     const projectDescription = projectDescriptionInput.value;
-    const projectMembers = projectMembersInput.value.split(',').map(email => email.trim()).filter(email => email);
+    const projectMembers = projectMembersInput.value;
+    const projectStatus = projectStatusSelect.value;
+
+    // Validar los correos
+    const emailValidation = validateEmails(projectMembers);
+    if (!emailValidation.valid) {
+        alert(emailValidation.message);  // Mostrar el mensaje de error
+        return;  // Detener el proceso si los correos no son válidos
+    }
 
     const newProject = {
-        nombre: projectName,
-        descripcion: projectDescription,
-        miembrosInvitados: projectMembers
+        name: projectName,
+        description: projectDescription,
+        status: projectStatus,
+        members: projectMembers.split(',').map(email => email.trim())
     };
 
-    await fetch('/api/projects', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token
-        },
-        body: JSON.stringify(newProject)
-    });
+    const projects = JSON.parse(localStorage.getItem('projects')) || [];
 
-    modal.style.display = 'none';
-    loadProjects();
-});
-
-// manejar envío del formulario de unirse a proyecto
-joinProjectForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const projectCode = document.getElementById('projectCode').value;
-
-    const response = await fetch('/api/projects/join', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token
-        },
-        body: JSON.stringify({ projectCode })
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-        joinProjectModal.style.display = 'none';
-        loadProjects();
+    if (currentProjectId === null) {
+        // Crear nuevo proyecto
+        projects.push(newProject);
     } else {
-        alert(result.mensaje || 'Error al unirse al proyecto');
+        // Editar proyecto existente
+        projects[currentProjectId] = newProject;
     }
+
+    localStorage.setItem('projects', JSON.stringify(projects));
+    modal.style.display = 'none';
+    loadProjects(); // Recargar proyectos
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (!token) {
-        window.location.href = '/login';
-    } else {
-        loadInvitations();
-        loadProjects();
-    }
+    loadProjects();
 });
-
-const invitationsSection = document.getElementById('invitationsSection');
-const invitationsList = document.getElementById('invitationsList');
-
-async function loadInvitations() {
-    const response = await fetch('/api/invites', {
-        headers: {
-            'Authorization': token
-        }
-    });
-    const invitations = await response.json();
-
-    if (invitations.length > 0) {
-        invitationsSection.style.display = 'block';
-        invitationsList.innerHTML = '';
-        invitations.forEach(invitation => {
-            const li = document.createElement('li');
-            li.textContent = `Invitacion al proyecto: ${invitation.nombre}`;
-
-            const acceptBtn = document.createElement('button');
-            acceptBtn.textContent = 'Aceptar';
-            acceptBtn.addEventListener('click', () => respondInvitation(invitation._id, true));
-
-            const declineBtn = document.createElement('button');
-            declineBtn.textContent = 'Rechazar';
-            declineBtn.addEventListener('click', () => respondInvitation(invitation._id, false));
-
-            li.appendChild(acceptBtn);
-            li.appendChild(declineBtn);
-            invitationsList.appendChild(li);
-        });
-    } else {
-        invitationsSection.style.display = 'none';
-    }
-}
-
-// Función para responder a una invitación
-async function respondInvitation(projectId, accept) {
-    const endpoint = accept ? `/api/invites/${projectId}/accept` : `/api/invites/${projectId}/decline`;
-
-    const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-            'Authorization': token
-        }
-    });
-
-    const resultado = await response.json();
-    if (response.ok) {
-        alert(resultado.mensaje);
-        loadInvitations();
-        loadProjects();
-    } else {
-        alert(resultado.mensaje || 'Error al responder a la invitacion');
-    }
-}
-
