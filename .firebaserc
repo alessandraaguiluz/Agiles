@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "metodologias-d20d9"
-  }
+  },
+  "targets": {
+    "metodologias-d20d9": {
+      "hosting": {
+        "metodologias-d20d9-82307": [
+          "hosting"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
