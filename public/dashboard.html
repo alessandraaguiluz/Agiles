@@ -26,34 +26,42 @@
             <h2>Invitaciones Pendientes</h2>
             <ul id="invitationsList"></ul>
         </section>
-
     </main>
 
-<div class="modal" id="projectModal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2 id="modal-title">Crear Proyecto</h2>
-        <form id="projectForm">
-            <label for="projectName">Nombre del Proyecto</label>
-            <input type="text" id="projectName" required>
-            <label for="projectDescription">Descripción</label>
-            <textarea id="projectDescription" required></textarea>
-            <label for="projectMembers">Invitar miembros (correos separados por comas)</label>
-            <input type="text" id="projectMembers" placeholder="correo1@example.com, correo2@example.com">
-            <button type="submit" id="saveProjectBtn">Guardar Proyecto</button>
-        </form>
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-title">Crear Proyecto</h2>
+            <form id="projectForm">
+                <label for="projectName">Nombre del Proyecto</label>
+                <input type="text" id="projectName" required>
+                <label for="projectDescription">Descripción</label>
+                <textarea id="projectDescription" required></textarea>
+                <label for="projectMembers">Invitar miembros (correos separados por comas)</label>
+                <input type="text" id="projectMembers" placeholder="correo1@example.com, correo2@example.com">
+                <label for="projectObjectives">Objetivos del Proyecto</label>
+                <textarea id="projectObjectives" required></textarea>
+                <label for="projectStatus">Estado del Proyecto</label>
+                <select id="projectStatus">
+                    <option value="activo">Activo</option>
+                    <option value="pausado">Pausado</option>
+                    <option value="descartado">Descartado</option>
+                </select>
+                <button type="submit" id="saveProjectBtn">Guardar Proyecto</button>
+            </form>
+        </div>
     </div>
-</div>
 
-<div class="modal" id="joinProjectModal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Unirse a Proyecto</h2>
-        <form id="joinProjectForm">
-            <label for="projectCode">Código del Proyecto</label>
-            <input type="text" id="projectCode" required>
-            <button type="submit" id="joinProjectSubmitBtn">Unirse</button>
-        </form>
+    <div class="modal" id="joinProjectModal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Unirse a Proyecto</h2>
+            <form id="joinProjectForm">
+                <label for="projectCode">Código del Proyecto</label>
+                <input type="text" id="projectCode" required>
+                <button type="submit" id="joinProjectSubmitBtn">Unirse</button>
+            </form>
+        </div>
     </div>
 </div>
 
